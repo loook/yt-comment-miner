@@ -1,0 +1,284 @@
+{
+  "perimenopause strength": {
+    "queries": [
+      "perimenopause strength training",
+      "menopause weight gain workout",
+      "lifting weights menopause",
+      "menopause belly fat exercise",
+      "strength training women over 45"
+    ],
+    "must_match": [
+      "menopaus",
+      "perimenopaus",
+      "over 40",
+      "over 45",
+      "over 50",
+      "hormon"
+    ]
+  },
+  "postpartum recovery": {
+    "queries": [
+      "postpartum workout diastasis recti",
+      "postpartum core rehab",
+      "mom pooch exercises",
+      "postpartum return to running",
+      "pelvic floor after birth"
+    ],
+    "must_match": [
+      "postpartum",
+      "post partum",
+      "diastasis",
+      "mom pooch",
+      "mama",
+      "c-section",
+      "after birth",
+      "pregnan",
+      "pelvic floor"
+    ]
+  },
+  "men's pelvic floor": {
+    "queries": [
+      "kegel exercises for men",
+      "male pelvic floor exercises",
+      "pelvic floor dysfunction men",
+      "leaking after prostate surgery exercises",
+      "premature ejaculation exercises"
+    ],
+    "must_match": [
+      "pelvic floor",
+      "kegel",
+      "prostate",
+      "erectile",
+      "dribble",
+      "incontinen",
+      "last longer"
+    ]
+  },
+  "running after 50": {
+    "queries": [
+      "running after 50",
+      "start running at 60",
+      "masters runner training",
+      "running over 50 injuries",
+      "couch to 5k over 50"
+    ],
+    "must_match": [
+      "run",
+      "5k",
+      "marathon",
+      "jog"
+    ],
+    "exclude": [
+      "home run",
+      "mlb",
+      "ohtani",
+      "diamond league",
+      "sha'carri",
+      "vs "
+    ]
+  },
+  "GLP-1 muscle": {
+    "queries": [
+      "ozempic muscle loss",
+      "strength training on ozempic",
+      "wegovy workout",
+      "mounjaro weight loss exercise",
+      "glp-1 protein and muscle"
+    ],
+    "must_match": [
+      "ozempic",
+      "wegovy",
+      "mounjaro",
+      "zepbound",
+      "glp-1",
+      "glp1",
+      "semaglutide",
+      "tirzepatide",
+      "fat jab"
+    ]
+  },
+  "ADHD fitness": {
+    "queries": [
+      "adhd workout motivation",
+      "exercise with adhd",
+      "adhd gym routine",
+      "adhd fitness consistency",
+      "adhd and exercise habit"
+    ],
+    "must_match": [
+      "adhd"
+    ]
+  },
+  "rucking": {
+    "queries": [
+      "rucking for beginners",
+      "rucking benefits",
+      "rucking weight loss",
+      "rucking every day",
+      "rucking vs running"
+    ],
+    "must_match": [
+      "ruck",
+      "weighted vest",
+      "farmers walk",
+      "farmer's walk",
+      "backpack",
+      "pack"
+    ]
+  },
+  "hybrid training": {
+    "queries": [
+      "hybrid athlete training",
+      "hyrox training plan",
+      "hyrox beginner",
+      "strength and running same week",
+      "hybrid training program"
+    ],
+    "must_match": [
+      "hybrid",
+      "hyrox",
+      "run"
+    ],
+    "exclude": [
+      "gymhumor",
+      "baddies"
+    ]
+  },
+  "beginner calisthenics": {
+    "queries": [
+      "calisthenics for beginners",
+      "first pull up",
+      "calisthenics at home beginner",
+      "how to do a muscle up",
+      "calisthenics over 40"
+    ],
+    "must_match": [
+      "calisthenic",
+      "pull up",
+      "pull-up",
+      "pullup",
+      "push up",
+      "push-up",
+      "muscle up",
+      "muscle-up",
+      "handstand",
+      "bodyweight"
+    ]
+  },
+  "desk mobility": {
+    "queries": [
+      "mobility routine desk job",
+      "tight hips from sitting",
+      "posture fix desk worker",
+      "neck pain from computer",
+      "daily mobility routine"
+    ],
+    "must_match": [
+      "mobility",
+      "posture",
+      "desk",
+      "sitting",
+      "tight hip",
+      "hip flexor",
+      "neck",
+      "stretch",
+      "flexib"
+    ],
+    "exclude": [
+      "asmr",
+      "uncrackable",
+      "abs"
+    ]
+  },
+  "PCOS fitness": {
+    "queries": [
+      "pcos workout",
+      "best exercise for pcos",
+      "pcos weight loss",
+      "insulin resistance workout",
+      "pcos strength training"
+    ],
+    "must_match": [
+      "pcos",
+      "pcod",
+      "insulin resist"
+    ]
+  },
+  "chronic back pain": {
+    "queries": [
+      "lower back pain exercises",
+      "herniated disc exercises",
+      "sciatica relief exercises",
+      "back pain gym",
+      "chronic back pain recovery"
+    ],
+    "must_match": [
+      "back pain",
+      "lower back",
+      "sciatica",
+      "herniat",
+      "disc",
+      "spine",
+      "spinal"
+    ],
+    "exclude": [
+      "ejercicios",
+      "asmr"
+    ]
+  },
+  "75 hard challenges": {
+    "queries": [
+      "75 hard challenge",
+      "75 soft challenge",
+      "30 day fitness challenge results",
+      "75 hard results",
+      "day 1 of 75 hard"
+    ],
+    "must_match": [
+      "75 hard",
+      "75 soft",
+      "day challenge",
+      "days challenge",
+      "30 days",
+      "60 days",
+      "90 day",
+      "100 days"
+    ],
+    "exclude": [
+      "vlogs",
+      "meetup",
+      "piyush"
+    ]
+  },
+  "type 1 diabetes training": {
+    "queries": [
+      "type 1 diabetes workout",
+      "exercise blood sugar type 1",
+      "type 1 diabetic bodybuilding",
+      "running with type 1 diabetes",
+      "t1d exercise hypo"
+    ],
+    "must_match": [
+      "type 1",
+      "t1d",
+      "type one",
+      "diabetic",
+      "insulin",
+      "type1",
+      "hypo"
+    ]
+  },
+  "walking pad / steps": {
+    "queries": [
+      "walking pad desk",
+      "10000 steps a day results",
+      "walking for weight loss",
+      "walking pad review",
+      "30 minute walk results"
+    ],
+    "must_match": [
+      "walk",
+      "steps"
+    ]
+  }
+}

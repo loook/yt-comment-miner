@@ -1,0 +1,18 @@
+# Fetched data — never commit. YouTube's Developer Policies cap storage of API data
+# at 30 calendar days, and comment text is other people's writing.
+data/
+exports/
+*.csv
+*.log
+
+# Local drafts (not part of the tool)
+article.md
+report*.md
+
+# Python
+.venv/
+__pycache__/
+*.pyc
+
+# macOS
+.DS_Store

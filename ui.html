@@ -1,0 +1,336 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Comment Miner</title>
+<style>
+  :root {
+    --bg: #f6f6f4; --panel: #ffffff; --text: #1d1d1b; --muted: #6b6b66; --line: #e3e2de;
+    --accent: #2f5bd3; --accent-text: #ffffff; --chip: #eef1fb; --ok: #1f7a4d; --warn: #a35a00;
+    --err: #b3261e; --sel: #eef3ff;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #151514; --panel: #1f1f1d; --text: #ecece8; --muted: #9d9d97; --line: #33332f;
+      --accent: #7c9cff; --accent-text: #0e1220; --chip: #262c40; --ok: #5fcf97; --warn: #f0b35c;
+      --err: #ff8a80; --sel: #232a3d;
+    }
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; background: var(--bg); color: var(--text);
+         font: 14px/1.45 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
+  main { max-width: 1180px; margin: 0 auto; padding: 20px 16px 120px; }
+  header { display: flex; align-items: baseline; justify-content: space-between; gap: 12px;
+           flex-wrap: wrap; margin-bottom: 16px; }
+  h1 { font-size: 20px; margin: 0; }
+  h2 { font-size: 15px; margin: 0 0 10px; }
+  .muted { color: var(--muted); }
+  .pill { background: var(--chip); border-radius: 999px; padding: 3px 10px; font-size: 12px; }
+  .panel { background: var(--panel); border: 1px solid var(--line); border-radius: 10px;
+           padding: 16px; margin-bottom: 16px; }
+  textarea, input, select { font: inherit; color: var(--text); background: var(--bg);
+           border: 1px solid var(--line); border-radius: 6px; padding: 7px 9px; }
+  textarea { width: 100%; min-height: 96px; resize: vertical; }
+  label { display: inline-flex; flex-direction: column; gap: 4px; font-size: 12px;
+          color: var(--muted); }
+  .row { display: flex; flex-wrap: wrap; gap: 12px; align-items: flex-end; margin-top: 10px; }
+  button { font: inherit; border: 1px solid var(--line); background: var(--panel);
+           color: var(--text); border-radius: 6px; padding: 7px 12px; cursor: pointer; }
+  button.primary { background: var(--accent); color: var(--accent-text); border-color: var(--accent);
+                   font-weight: 600; }
+  button:disabled { opacity: .5; cursor: default; }
+  .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 12px; }
+  .card { border: 1px solid var(--line); border-radius: 8px; overflow: hidden; background: var(--panel);
+          display: flex; flex-direction: column; cursor: pointer; }
+  .card.selected { outline: 2px solid var(--accent); background: var(--sel); }
+  .card img { width: 100%; aspect-ratio: 16/9; object-fit: cover; display: block; background: var(--line); }
+  .card .body { padding: 9px 10px 10px; display: flex; flex-direction: column; gap: 5px; flex: 1; }
+  .card a { color: var(--text); font-weight: 600; text-decoration: none; }
+  .card a:hover { text-decoration: underline; }
+  .stats { display: flex; gap: 10px; flex-wrap: wrap; font-size: 12px; color: var(--muted); }
+  .stats b { color: var(--text); font-weight: 600; }
+  .tags { display: flex; gap: 5px; flex-wrap: wrap; }
+  .tag { font-size: 11px; background: var(--chip); border-radius: 4px; padding: 1px 6px; }
+  .tag.ok { color: var(--ok); } .tag.warn { color: var(--warn); }
+  .check { display: flex; align-items: center; gap: 6px; font-size: 12px; }
+  .toolbar { display: flex; gap: 10px; flex-wrap: wrap; align-items: flex-end; margin-bottom: 12px; }
+  .bar { position: fixed; left: 0; right: 0; bottom: 0; background: var(--panel);
+         border-top: 1px solid var(--line); padding: 10px 16px; }
+  .bar .inner { max-width: 1180px; margin: 0 auto; display: flex; gap: 12px; align-items: flex-end;
+                flex-wrap: wrap; justify-content: space-between; }
+  .progress { height: 8px; background: var(--line); border-radius: 4px; overflow: hidden; margin: 8px 0; }
+  .progress div { height: 100%; background: var(--accent); width: 0; transition: width .3s; }
+  .log { font: 12px/1.5 ui-monospace, Menlo, monospace; max-height: 180px; overflow: auto;
+         white-space: pre-wrap; }
+  .err { color: var(--err); }
+  dialog { border: 1px solid var(--line); border-radius: 10px; background: var(--panel);
+           color: var(--text); max-width: 640px; width: calc(100% - 32px); }
+  dialog::backdrop { background: rgba(0,0,0,.4); }
+  dialog ol { max-height: 300px; overflow: auto; padding-left: 20px; }
+  .hidden { display: none !important; }
+</style>
+</head>
+<body>
+<main>
+  <header>
+    <h1>Comment Miner</h1>
+    <span class="pill" id="quota">Searches today: …</span>
+  </header>
+
+  <section class="panel">
+    <h2>1 · Search</h2>
+    <textarea id="queries" placeholder="One search term per line, in your audience's words, e.g.&#10;perimenopause strength training&#10;ADHD gym routine"></textarea>
+    <div class="row">
+      <label>Sort by
+        <select id="order">
+          <option value="relevance">Relevance</option>
+          <option value="viewCount">Views</option>
+          <option value="date">Newest</option>
+        </select>
+      </label>
+      <label>Uploaded in the last
+        <select id="months">
+          <option value="6">6 months</option>
+          <option value="12">12 months</option>
+          <option value="24" selected>24 months</option>
+          <option value="60">5 years</option>
+        </select>
+      </label>
+      <label>Results per term
+        <select id="perQuery">
+          <option>10</option><option selected>25</option><option>50</option>
+        </select>
+      </label>
+      <button class="primary" id="searchBtn">Search</button>
+      <span class="muted" style="font-size:12px">Each new term uses 1 of 100 daily searches. Repeated terms are free (cached).</span>
+    </div>
+    <div id="searchMsg" class="muted" style="margin-top:8px"></div>
+  </section>
+
+  <section class="panel hidden" id="resultsPanel">
+    <h2>2 · Pick videos <span class="muted" id="resultCount"></span></h2>
+    <div class="toolbar">
+      <label>Title contains
+        <input id="fText" placeholder="filter…">
+      </label>
+      <label>Min comments
+        <input id="fMin" type="number" min="0" value="0" style="width:100px">
+      </label>
+      <label>Sort
+        <select id="fSort">
+          <option value="comments">Most comments</option>
+          <option value="rate">Comments per 1k views</option>
+          <option value="views">Most views</option>
+          <option value="date">Newest</option>
+        </select>
+      </label>
+      <button id="selAll">Select all shown</button>
+      <button id="selNone">Clear selection</button>
+    </div>
+    <div class="grid" id="grid"></div>
+  </section>
+
+  <section class="panel hidden" id="jobPanel">
+    <h2>3 · Export</h2>
+    <div id="jobStatus"></div>
+    <div class="progress"><div id="jobBar"></div></div>
+    <div class="log" id="jobLog"></div>
+    <div class="log err" id="jobErr"></div>
+    <div id="jobDone" style="margin-top:8px"></div>
+  </section>
+</main>
+
+<div class="bar">
+  <div class="inner">
+    <div>
+      <b id="selCount">0 selected</b>
+      <span class="muted" id="selEst"></span>
+    </div>
+    <div class="row" style="margin:0">
+      <label>Export name
+        <input id="label" value="comments" style="width:160px">
+      </label>
+      <label>Max comment threads / video
+        <select id="maxThreads">
+          <option value="500">500</option><option value="1000">1,000</option>
+          <option value="2000" selected>2,000</option><option value="0">All</option>
+        </select>
+      </label>
+      <button class="primary" id="exportBtn" disabled>Export comments…</button>
+    </div>
+  </div>
+</div>
+
+<dialog id="confirm">
+  <h2>Export comments from <span id="cN"></span> videos?</h2>
+  <p class="muted" id="cEst"></p>
+  <ol id="cList"></ol>
+  <div class="row" style="justify-content:flex-end">
+    <button id="cCancel">Cancel</button>
+    <button class="primary" id="cGo">Start export</button>
+  </div>
+</dialog>
+
+<script>
+const $ = id => document.getElementById(id);
+let results = [];                 // videos from the latest search
+const selected = new Map();       // video_id -> video (kept across searches)
+const fmt = n => n == null ? "–" : n.toLocaleString("en-US");
+
+function el(tag, props = {}, ...kids) {
+  const e = document.createElement(tag);
+  for (const [k, v] of Object.entries(props)) {
+    if (k === "class") e.className = v; else if (k === "text") e.textContent = v; else e[k] = v;
+  }
+  kids.forEach(k => k && e.append(k));
+  return e;
+}
+
+async function refreshQuota() {
+  const q = await (await fetch("/api/quota")).json();
+  $("quota").textContent = `Searches today: ${q.searches_today} / ${q.cap}`;
+}
+
+$("searchBtn").onclick = async () => {
+  const queries = $("queries").value.split("\n").map(s => s.trim()).filter(Boolean);
+  if (!queries.length) { $("searchMsg").textContent = "Enter at least one search term."; return; }
+  $("searchBtn").disabled = true;
+  $("searchMsg").textContent = `Searching ${queries.length} term(s)…`;
+  try {
+    const r = await fetch("/api/search", { method: "POST", headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ queries, order: $("order").value, months: +$("months").value,
+                             per_query: +$("perQuery").value }) });
+    const d = await r.json();
+    if (!r.ok) throw new Error(d.error || r.status);
+    results = d.videos;
+    $("quota").textContent = `Searches today: ${d.searches_today} / ${d.cap}`;
+    $("searchMsg").textContent = `${results.length} unique videos · ${d.searches_spent} new search(es) used`
+      + (d.errors.length ? ` · problems: ${d.errors.join("; ")}` : "");
+    $("resultsPanel").classList.remove("hidden");
+    render();
+  } catch (e) {
+    $("searchMsg").textContent = "Search failed: " + e.message;
+  } finally { $("searchBtn").disabled = false; }
+};
+
+function shown() {
+  const t = $("fText").value.toLowerCase(), min = +$("fMin").value || 0;
+  const rate = v => v.comments == null ? 0 : v.comments / Math.max(v.views, 1);
+  const key = { comments: v => v.comments ?? -1, views: v => v.views, rate,
+                date: v => v.published_at }[$("fSort").value];
+  return results.filter(v => v.title.toLowerCase().includes(t) && (v.comments ?? 0) >= min)
+                .sort((a, b) => key(b) > key(a) ? 1 : key(b) < key(a) ? -1 : 0);
+}
+
+function render() {
+  const list = shown();
+  $("resultCount").textContent = `· showing ${list.length} of ${results.length}`;
+  const grid = $("grid"); grid.replaceChildren();
+  for (const v of list) {
+    const isSel = selected.has(v.video_id);
+    const box = el("input", { type: "checkbox", checked: isSel, disabled: v.comments == null });
+    const tags = el("div", { class: "tags" });
+    if (v.comments == null) tags.append(el("span", { class: "tag warn", text: "comments off" }));
+    if (v.exported) tags.append(el("span", { class: "tag ok", text: "already exported" }));
+    v.queries.forEach(q => tags.append(el("span", { class: "tag", text: q })));
+    const link = el("a", { href: v.url, target: "_blank", rel: "noopener", text: v.title });
+    link.onclick = e => e.stopPropagation();
+    const card = el("div", { class: "card" + (isSel ? " selected" : "") },
+      el("img", { src: v.thumb, loading: "lazy", alt: "" }),
+      el("div", { class: "body" },
+        link,
+        el("div", { class: "muted", text: `${v.channel} · ${v.published_at}`, style: "font-size:12px" }),
+        el("div", { class: "stats" },
+          el("span", {}, el("b", { text: fmt(v.views) }), " views"),
+          el("span", {}, el("b", { text: fmt(v.comments) }), " comments"),
+          el("span", {}, el("b", { text: v.comments == null ? "–"
+             : (1000 * v.comments / Math.max(v.views, 1)).toFixed(1) }), " / 1k views")),
+        tags,
+        el("label", { class: "check" }, box, "Select")));
+    const toggle = () => {
+      if (v.comments == null) return;
+      selected.has(v.video_id) ? selected.delete(v.video_id) : selected.set(v.video_id, v);
+      render(); updateBar();
+    };
+    card.onclick = e => { if (e.target !== box) toggle(); };
+    box.onclick = e => { e.stopPropagation(); toggle(); };
+    grid.append(card);
+  }
+}
+
+function estimate() {
+  const cap = +$("maxThreads").value || Infinity;
+  let comments = 0, calls = 0;
+  for (const v of selected.values()) {
+    const c = Math.min(v.comments || 0, cap === Infinity ? Infinity : cap * 3);
+    comments += c;
+    calls += Math.ceil(Math.min(v.comments || 0, cap) / 100);
+  }
+  // reply threads longer than 5 need extra calls; ~30% extra is a rough allowance
+  return { comments, units: Math.ceil(calls * 1.3) };
+}
+
+function updateBar() {
+  const n = selected.size, est = estimate();
+  $("selCount").textContent = `${n} selected`;
+  $("selEst").textContent = n ? ` · up to ~${fmt(est.comments)} comments · ≈${fmt(est.units)} of 10,000 daily units` : "";
+  $("exportBtn").disabled = n === 0;
+}
+
+["fText", "fMin", "fSort"].forEach(id => $(id).oninput = render);
+$("maxThreads").onchange = updateBar;
+$("selAll").onclick = () => { shown().forEach(v => v.comments != null && selected.set(v.video_id, v)); render(); updateBar(); };
+$("selNone").onclick = () => { selected.clear(); render(); updateBar(); };
+
+$("exportBtn").onclick = () => {
+  const est = estimate();
+  $("cN").textContent = selected.size;
+  $("cEst").textContent = `Up to ~${fmt(est.comments)} comments, about ${fmt(est.units)} API units. `
+    + "Videos exported before are read from cache and cost nothing.";
+  $("cList").replaceChildren(...[...selected.values()].map(v =>
+    el("li", { text: `${v.title} — ${fmt(v.comments)} comments` })));
+  $("confirm").showModal();
+};
+$("cCancel").onclick = () => $("confirm").close();
+
+$("cGo").onclick = async () => {
+  $("confirm").close();
+  $("exportBtn").disabled = true;
+  const videos = [...selected.values()].map(v => ({ video_id: v.video_id, title: v.title }));
+  const r = await fetch("/api/export", { method: "POST", headers: { "Content-Type": "application/json" },
+    body: JSON.stringify({ videos, label: $("label").value, max_threads: +$("maxThreads").value }) });
+  const d = await r.json();
+  if (!r.ok) { alert(d.error); $("exportBtn").disabled = false; return; }
+  $("jobPanel").classList.remove("hidden");
+  $("jobDone").replaceChildren();
+  $("jobPanel").scrollIntoView({ behavior: "smooth" });
+  poll(d.job_id);
+};
+
+async function poll(id) {
+  const j = await (await fetch(`/api/job/${id}`)).json();
+  $("jobStatus").textContent = `${j.done} / ${j.total} videos · ${fmt(j.rows)} comments`
+    + (j.current ? ` · now: ${j.current}` : "");
+  $("jobBar").style.width = `${100 * j.done / j.total}%`;
+  $("jobLog").textContent = j.log.join("\n");
+  $("jobErr").textContent = j.errors.join("\n");
+  if (j.status === "finished") {
+    $("jobDone").replaceChildren(
+      el("a", { href: `/api/download/${encodeURIComponent(j.file)}`, text: `Download ${j.file}` }),
+      el("span", { class: "muted", text: `  (also saved in ~/yt-comments/exports/)` }));
+    // clear the selection: otherwise the next export silently re-includes these videos
+    results.forEach(v => { if (selected.has(v.video_id)) v.exported = true; });
+    selected.clear();
+    render(); updateBar();
+    $("jobDone").append(el("div", { class: "muted",
+      text: "Selection cleared — the next export starts from an empty list." }));
+    return;
+  }
+  setTimeout(() => poll(id), 1500);
+}
+
+refreshQuota();
+</script>
+</body>
+</html>
