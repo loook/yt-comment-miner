@@ -21,7 +21,7 @@ No database, no accounts, no cloud. Python plus one HTML file, everything on you
 ## Setup
 
 ```bash
-git clone https://github.com/<you>/yt-comment-miner.git
+git clone https://github.com/loook/yt-comment-miner.git
 cd yt-comment-miner
 python3 -m venv .venv
 .venv/bin/pip install -r requirements.txt
